@@ -1,0 +1,104 @@
+<!-- app/templates/admin/order_detail.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Order {{ order.id }}</title>
+</head>
+
+<body>
+    <header>
+        <h1>Order #{{ order.id }}</h1>
+
+        <nav>
+            <a href="/admin/orders">
+                Back to orders
+            </a>
+
+            <a href="/admin/">
+                Dashboard
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="panel">
+            <p>
+                <strong>User:</strong>
+                {{ order.user.username }}
+            </p>
+
+            <p>
+                <strong>Date:</strong>
+                {{ order.order_date }}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                {{ order.status }}
+            </p>
+
+            <p>
+                <strong>Total:</strong>
+                {{ "%.2f"|format(order.total_amount) }}
+                DKK
+            </p>
+        </section>
+
+        <section class="panel">
+            <h2>Items</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th>Quantity</th>
+                        <th>Unit price</th>
+                        <th>Line total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for line in order.lines %}
+                        <tr>
+                            <td>
+                                {{ line.article.name }}
+                            </td>
+
+                            <td>
+                                {{ line.quantity }}
+                            </td>
+
+                            <td>
+                                {{ "%.2f"|format(line.unit_price) }}
+                                DKK
+                            </td>
+
+                            <td>
+                                {{ "%.2f"|format(
+                                    line.unit_price * line.quantity
+                                ) }}
+                                DKK
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!-- app/templates/admin/orders.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Orders</title>
+</head>
+
+<body>
+    <header>
+        <h1>Orders</h1>
+
+        <nav>
+            <a href="/admin/">
+                Dashboard
+            </a>
+
+            <a href="/admin/users">
+                Users
+            </a>
+
+            <a href="/admin/inventory">
+                Inventory
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>
+                                <a
+                                    href="/admin/orders/{{ order.id }}"
+                                >
+                                    #{{ order.id }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ order.user.username }}
+                            </td>
+
+                            <td>
+                                {{ order.order_date }}
+                            </td>
+
+                            <td>
+                                {{ order.status }}
+                            </td>
+
+                            <td>
+                                {{ "%.2f"|format(order.total_amount) }}
+                                DKK
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+
+</html>

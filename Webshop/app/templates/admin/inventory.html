@@ -1,0 +1,84 @@
+<!-- app/templates/admin/inventory.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Inventory</title>
+</head>
+
+<body>
+    <header>
+        <h1>Inventory</h1>
+
+        <nav>
+            <a href="/admin/">
+                Dashboard
+            </a>
+
+            <a href="/admin/users">
+                Users
+            </a>
+
+            <a href="/admin/orders">
+                Orders
+            </a>
+
+            <a href="/admin/goods-received">
+                Goods received
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for article in articles %}
+                        <tr>
+                            <td>
+                                {{ article.article_number }}
+                            </td>
+
+                            <td>
+                                {{ article.name }}
+                            </td>
+
+                            <td>
+                                {{ "%.2f"|format(article.price) }}
+                                DKK
+                            </td>
+
+                            <td>
+                                {{ article.quantity_on_hand }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+
+</html>

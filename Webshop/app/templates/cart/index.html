@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Cart</title>
+</head>
+
+<body>
+    <header>
+        <h1>Shopping cart</h1>
+
+        <nav>
+            <a href="/">
+                Shop
+            </a>
+
+            <a href="/cart/">
+                Cart
+            </a>
+
+            <a href="/auth/">
+                Account
+            </a>
+
+            <span
+                id="account-status"
+                class="account-status"
+            >
+                Checking login...
+            </span>
+        </nav>
+    </header>
+
+    <main>
+        {% if items %}
+            <section class="cart-list">
+                {% for item in items %}
+                    <article class="cart-item">
+                        <div class="cart-item-details">
+                            <h2>
+                                {{ item.article.name }}
+                            </h2>
+
+                            <p>
+                                Article number:
+                                {{ item.article.article_number }}
+                            </p>
+
+                            <p>
+                                Unit price:
+                                {{ "%.2f"|format(item.article.price) }}
+                                DKK
+                            </p>
+
+                            <p>
+                                Line total:
+                                <strong>
+                                    {{ "%.2f"|format(item.line_total) }}
+                                    DKK
+                                </strong>
+                            </p>
+                        </div>
+
+                        <div class="cart-item-controls">
+                            <label
+                                for="quantity-{{ item.article.id }}"
+                            >
+                                Quantity
+                            </label>
+
+                            <input
+                                id="quantity-{{ item.article.id }}"
+                                class="quantity"
+                                data-article-id="{{ item.article.id }}"
+                                type="number"
+                                min="0"
+                                max="{{ item.article.quantity_on_hand }}"
+                                value="{{ item.quantity }}"
+                            >
+
+                            <p class="muted">
+                                Set quantity to 0 to remove.
+                            </p>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+
+            <section class="cart-summary">
+                <h2>Order summary</h2>
+
+                <p>
+                    Total:
+                    <strong>
+                        {{ "%.2f"|format(total) }}
+                        DKK
+                    </strong>
+                </p>
+
+                <div class="actions">
+                    <button
+                        id="checkout-button"
+                        type="button"
+                        class="primary"
+                    >
+                        Checkout
+                    </button>
+
+                    <a href="/">
+                        Continue shopping
+                    </a>
+                </div>
+            </section>
+        {% else %}
+            <section class="panel">
+                <h2>Your cart is empty</h2>
+
+                <p>
+                    You have not added any products yet.
+                </p>
+
+                <a href="/">
+                    Return to shop
+                </a>
+            </section>
+        {% endif %}
+
+        <p
+            id="message"
+            class="message"
+        ></p>
+    </main>
+
+    <script>
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+        const accountStatus =
+            document.getElementById(
+                "account-status"
+            );
+
+        async function updateAccountStatus() {
+            const response = await fetch(
+                "/auth/me",
+                {
+                    credentials: "same-origin"
+                }
+            );
+
+            if (!response.ok) {
+                accountStatus.textContent =
+                    "Not logged in";
+
+                return;
+            }
+
+            const user =
+                await response.json();
+
+            accountStatus.textContent =
+                `Logged in as ${user.username}`;
+        }
+
+        document
+            .querySelectorAll(".quantity")
+            .forEach(input => {
+                input.addEventListener(
+                    "change",
+                    async () => {
+                        const articleId =
+                            Number(
+                                input.dataset.articleId
+                            );
+
+                        const quantity =
+                            Number(
+                                input.value
+                            );
+
+                        const response =
+                            await fetch(
+                                "/cart/update",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    credentials:
+                                        "same-origin",
+
+                                    body:
+                                        JSON.stringify({
+                                            article_id:
+                                                articleId,
+                                            quantity:
+                                                quantity
+                                        })
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        if (!response.ok) {
+                            message.textContent =
+                                data.error;
+
+                            return;
+                        }
+
+                        location.reload();
+                    }
+                );
+            });
+
+        const checkoutButton =
+            document.getElementById(
+                "checkout-button"
+            );
+
+        if (checkoutButton) {
+            checkoutButton.addEventListener(
+                "click",
+                async () => {
+                    const response =
+                        await fetch(
+                            "/cart/checkout",
+                            {
+                                method: "POST",
+
+                                credentials:
+                                    "same-origin"
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (response.status === 401) {
+                        window.location.href =
+                            "/auth/?next=/cart/";
+
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        message.textContent =
+                            data.error;
+
+                        return;
+                    }
+
+                    message.textContent =
+                        `Order ${data.order_id} placed successfully. Total: ${data.total_amount} DKK`;
+
+                    window.setTimeout(
+                        () => {
+                            window.location.href =
+                                "/";
+                        },
+                        1000
+                    );
+                }
+            );
+        }
+
+        updateAccountStatus();
+    </script>
+</body>
+
+</html>

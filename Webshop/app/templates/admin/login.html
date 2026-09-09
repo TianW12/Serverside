@@ -1,0 +1,164 @@
+<!-- app/templates/admin/login.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Login</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+<body>
+    <main class="admin-login-page">
+        <section class="admin-login-card">
+            <div class="admin-login-header">
+                <p class="admin-login-label">
+                    Administration
+                </p>
+
+                <h1>Admin Login</h1>
+
+                <p>
+                    Sign in with an administrator account to continue.
+                </p>
+            </div>
+
+            <form id="login-form" class="admin-login-form">
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <p
+                    id="error"
+                    class="admin-login-error"
+                    aria-live="polite"
+                ></p>
+
+                <button type="submit">
+                    Log in
+                </button>
+            </form>
+
+            <a
+                class="admin-login-back"
+                href="/"
+            >
+                Return to shop
+            </a>
+        </section>
+    </main>
+
+    <script>
+        const form =
+            document.getElementById("login-form");
+
+        const error =
+            document.getElementById("error");
+
+        form.addEventListener(
+            "submit",
+            async event => {
+                event.preventDefault();
+
+                error.textContent = "";
+
+                const username =
+                    document.getElementById(
+                        "username"
+                    ).value;
+
+                const password =
+                    document.getElementById(
+                        "password"
+                    ).value;
+
+                const response = await fetch(
+                    "/auth/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        credentials: "same-origin",
+                        body: JSON.stringify({
+                            username,
+                            password
+                        })
+                    }
+                );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+                    error.textContent =
+                        data.error
+                        ?? "Login failed";
+
+                    return;
+                }
+
+                const userResponse =
+                    await fetch(
+                        "/auth/me",
+                        {
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+                const user =
+                    await userResponse.json();
+
+                if (
+                    !userResponse.ok
+                    || user.role !== "admin"
+                ) {
+                    await fetch(
+                        "/auth/logout",
+                        {
+                            method: "POST",
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+                    error.textContent =
+                        "Administrator access required";
+
+                    return;
+                }
+
+                window.location.href =
+                    "/admin/";
+            }
+        );
+    </script>
+</body>
+</html>

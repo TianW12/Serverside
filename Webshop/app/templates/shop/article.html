@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>{{ article.name }}</title>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="/">
+                Shop
+            </a>
+
+            <a href="/cart/">
+                Cart
+            </a>
+
+            <a href="/auth/">
+                Account
+            </a>
+
+            <span
+                id="account-status"
+                class="account-status"
+            >
+                Not logged in
+            </span>
+        </nav>
+    </header>
+
+    <main>
+        <article class="product-card">
+            <h1>{{ article.name }}</h1>
+
+            <p>
+                Article number:
+                {{ article.article_number }}
+            </p>
+
+            <p>
+                {{ article.description or "" }}
+            </p>
+
+            <p>
+                {{ "%.2f"|format(article.price) }}
+                DKK
+            </p>
+
+            <p>
+                {{ article.quantity_on_hand }}
+                in stock
+            </p>
+
+            {% if article.quantity_on_hand > 0 %}
+                <form id="add-to-cart-form">
+                    <label>
+                        Quantity
+
+                        <input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            max="{{ article.quantity_on_hand }}"
+                            value="1"
+                            required
+                        >
+                    </label>
+
+                    <button type="submit">
+                        Add to cart
+                    </button>
+                </form>
+            {% else %}
+                <p>
+                    Out of stock
+                </p>
+            {% endif %}
+
+            <p
+                id="message"
+                class="message"
+            ></p>
+        </article>
+    </main>
+
+    <script>
+        async function updateAccountStatus() {
+            const response = await fetch(
+                "/auth/me",
+                {
+                    credentials: "same-origin"
+                }
+            );
+
+            const accountStatus =
+                document.getElementById(
+                    "account-status"
+                );
+
+            if (!response.ok) {
+                accountStatus.textContent =
+                    "Not logged in";
+
+                return;
+            }
+
+            const user = await response.json();
+
+            accountStatus.textContent =
+                `Logged in as ${user.username}`;
+        }
+
+        updateAccountStatus();
+
+        const form = document.getElementById(
+            "add-to-cart-form"
+        );
+
+        const message = document.getElementById(
+            "message"
+        );
+
+        if (form) {
+            form.addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    const quantity = Number(
+                        document
+                            .getElementById(
+                                "quantity"
+                            )
+                            .value
+                    );
+
+                    const response = await fetch(
+                        "/cart/add",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body: JSON.stringify({
+                                article_id:
+                                    {{ article.id }},
+                                quantity:
+                                    quantity
+                            })
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    message.textContent =
+                        data.message ??
+                        data.error;
+                }
+            );
+        }
+    </script>
+</body>
+
+</html>

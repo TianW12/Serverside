@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Create account</title>
+</head>
+
+<body>
+    <header>
+        <h1>Create account</h1>
+
+        <nav>
+            <a href="/">
+                Shop
+            </a>
+
+            <a href="/cart/">
+                Cart
+            </a>
+
+            <a href="/auth/">
+                Account
+            </a>
+
+            <span
+                id="account-status"
+                class="account-status"
+            >
+                Not logged in
+            </span>
+        </nav>
+    </header>
+
+    <main>
+        <section class="panel account-panel">
+            <h2>Sign up</h2>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">
+                        Username
+                    </label>
+
+                    <input
+                        id="register-username"
+                        type="text"
+                        minlength="3"
+                        maxlength="100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">
+                        Password
+                    </label>
+
+                    <input
+                        id="register-password"
+                        type="password"
+                        minlength="12"
+                        required
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary"
+                >
+                    Create account
+                </button>
+            </form>
+
+            <p class="signup-link">
+                Already have an account?
+                <a href="/auth/">
+                    Log in
+                </a>
+            </p>
+        </section>
+
+        <p
+            id="output"
+            class="message"
+        ></p>
+    </main>
+
+    <script>
+        const output =
+            document.getElementById("output");
+
+        document
+            .getElementById("register-form")
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    const username =
+                        document
+                            .getElementById(
+                                "register-username"
+                            )
+                            .value;
+
+                    const password =
+                        document
+                            .getElementById(
+                                "register-password"
+                            )
+                            .value;
+
+                    const response = await fetch(
+                        "/auth/register",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body: JSON.stringify({
+                                username,
+                                password
+                            })
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        output.textContent =
+                            data.error;
+
+                        return;
+                    }
+
+                    window.location.href =
+                        "/auth/";
+                }
+            );
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!-- app/templates/admin/users.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Users</title>
+</head>
+
+<body>
+    <header>
+        <h1>Users</h1>
+
+        <nav>
+            <a href="/admin/">
+                Dashboard
+            </a>
+
+            <a href="/admin/orders">
+                Orders
+            </a>
+
+            <a href="/admin/inventory">
+                Inventory
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                {{ user.id }}
+                            </td>
+
+                            <td>
+                                {{ user.username }}
+                            </td>
+
+                            <td>
+                                {{ user.role }}
+                            </td>
+
+                            <td>
+                                {{ user.created_at }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+
+</html>

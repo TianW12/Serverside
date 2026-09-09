@@ -1,0 +1,97 @@
+<!-- app/templates/admin/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Admin</title>
+</head>
+
+<body>
+    <header>
+        <h1>Administration</h1>
+
+        <nav>
+            <a href="/">
+                Shop
+            </a>
+
+            <a href="/admin/">
+                Dashboard
+            </a>
+
+            <a href="/admin/users">
+                Users
+            </a>
+
+            <a href="/admin/orders">
+                Orders
+            </a>
+
+            <a href="/admin/inventory">
+                Inventory
+            </a>
+
+            <a href="/admin/goods-received">
+                Goods received
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="product-grid">
+            <article class="panel">
+                <h2>Users</h2>
+
+                <p>
+                    {{ user_count }}
+                    registered users
+                </p>
+
+                <a href="/admin/users">
+                    View users
+                </a>
+            </article>
+
+            <article class="panel">
+                <h2>Orders</h2>
+
+                <p>
+                    {{ order_count }}
+                    orders
+                </p>
+
+                <a href="/admin/orders">
+                    View orders
+                </a>
+            </article>
+
+            <article class="panel">
+                <h2>Products</h2>
+
+                <p>
+                    {{ article_count }}
+                    articles
+                </p>
+
+                <a href="/admin/inventory">
+                    View inventory
+                </a>
+            </article>
+        </section>
+    </main>
+</body>
+
+</html>

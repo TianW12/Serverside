@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <title>Account</title>
+</head>
+
+<body>
+    <header>
+        <h1>Account</h1>
+
+        <nav>
+            <a href="/">
+                Shop
+            </a>
+
+            <a href="/cart/">
+                Cart
+            </a>
+
+            <a href="/auth/">
+                Account
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section
+            id="login-section"
+            class="panel account-panel"
+        >
+            <h2>Log in</h2>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">
+                        Username
+                    </label>
+
+                    <input
+                        id="login-username"
+                        type="text"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">
+                        Password
+                    </label>
+
+                    <input
+                        id="login-password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary"
+                >
+                    Log in
+                </button>
+            </form>
+
+            <p class="signup-link">
+                Don't have an account?
+                <a href="/auth/register">
+                    Sign up
+                </a>
+            </p>
+
+            <p
+                id="login-message"
+                class="form-message"
+            ></p>
+        </section>
+
+        <section
+            id="account-section"
+            class="panel account-panel"
+            hidden
+        >
+            <h2>Your account</h2>
+
+            <p>
+                You are logged in as
+                <strong id="username"></strong>.
+            </p>
+
+            <button
+                id="logout-button"
+                type="button"
+                class="danger"
+            >
+                Log out
+            </button>
+        </section>
+    </main>
+
+    <script>
+        const loginSection =
+            document.getElementById(
+                "login-section"
+            );
+
+        const accountSection =
+            document.getElementById(
+                "account-section"
+            );
+
+        const loginMessage =
+            document.getElementById(
+                "login-message"
+            );
+
+        const usernameOutput =
+            document.getElementById(
+                "username"
+            );
+
+        async function updatePage() {
+            const response = await fetch(
+                "/auth/me",
+                {
+                    credentials: "same-origin"
+                }
+            );
+
+            if (!response.ok) {
+                loginSection.hidden = false;
+                accountSection.hidden = true;
+
+                return;
+            }
+
+            const user =
+                await response.json();
+
+            usernameOutput.textContent =
+                user.username;
+
+            loginSection.hidden = true;
+            accountSection.hidden = false;
+        }
+
+        document
+            .getElementById("login-form")
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    loginMessage.textContent = "";
+
+                    const username =
+                        document
+                            .getElementById(
+                                "login-username"
+                            )
+                            .value;
+
+                    const password =
+                        document
+                            .getElementById(
+                                "login-password"
+                            )
+                            .value;
+
+                    const response = await fetch(
+                        "/auth/login",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body: JSON.stringify({
+                                username,
+                                password
+                            })
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        loginMessage.textContent =
+                            data.error;
+
+                        return;
+                    }
+
+                    const params =
+                        new URLSearchParams(
+                            window.location.search
+                        );
+
+                    const next =
+                        params.get("next");
+
+                    if (next) {
+                        window.location.href =
+                            next;
+
+                        return;
+                    }
+
+                    await updatePage();
+                }
+            );
+
+        document
+            .getElementById("logout-button")
+            .addEventListener(
+                "click",
+                async () => {
+                    await fetch(
+                        "/auth/logout",
+                        {
+                            method: "POST",
+
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+                    await updatePage();
+                }
+            );
+
+        updatePage();
+    </script>
+</body>
+
+</html>
